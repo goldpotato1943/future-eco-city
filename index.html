@@ -1,0 +1,1053 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>환경을 지키는 미래도시</title>
+<style>
+  :root{
+    --bg:#F3FAF6;
+    --ink:#233A32;
+    --sub:#6B8079;
+    --card-bg:#FFFFFF;
+    --shadow: 0 6px 16px rgba(35,58,50,0.10);
+    --radius: 22px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    min-height:100vh;
+  }
+  .wrap{
+    max-width:1080px;
+    margin:0 auto;
+    padding:40px 24px 80px;
+  }
+  header{
+    text-align:center;
+    margin-bottom:32px;
+  }
+  header h1{
+    font-size:2.7rem;
+    margin:0 0 10px;
+  }
+  header p{
+    font-size:1.2rem;
+    color:var(--sub);
+    margin:0;
+  }
+
+  /* City scene */
+  .city-scene{
+    background:linear-gradient(180deg,#BEE7FF 0%,#E8FBEF 60%,#CDEFD2 100%);
+    border-radius:28px;
+    padding:44px 20px 16px;
+    margin-bottom:36px;
+    box-shadow:var(--shadow);
+    position:relative;
+    overflow:hidden;
+    transition:background .6s ease;
+  }
+  .city-scene.night{
+    background:linear-gradient(180deg,#0B1026 0%,#1B2A4A 55%,#173A24 100%);
+  }
+  .city-sky-deco{
+    position:absolute;
+    top:0;left:0;right:0;height:44px;
+    pointer-events:none;
+  }
+  .sun-deco{
+    position:absolute;top:8px;right:26px;font-size:2rem;
+    transition:opacity .4s ease;
+  }
+  .moon-deco{
+    position:absolute;top:8px;right:26px;font-size:1.8rem;
+    opacity:0;transition:opacity .4s ease;
+  }
+  .city-scene.night .sun-deco{opacity:0;}
+  .city-scene.night .moon-deco{opacity:1;}
+  .cloud-deco{
+    position:absolute;font-size:1.5rem;opacity:.85;
+    transition:opacity .4s ease;
+  }
+  .cloud-deco.c1{top:2px;left:8%;}
+  .cloud-deco.c2{top:16px;left:34%;font-size:1.15rem;}
+  .cloud-deco.c3{top:6px;left:58%;font-size:1.3rem;}
+  .city-scene.night .cloud-deco{opacity:0;}
+  .star-deco{
+    position:absolute;font-size:.9rem;color:#fff;opacity:0;
+    transition:opacity .4s ease;
+  }
+  .star-deco.s1{top:4px;left:20%;}
+  .star-deco.s2{top:20px;left:46%;}
+  .star-deco.s3{top:10px;left:72%;}
+  .city-scene.night .star-deco{opacity:.9;}
+  .city-title{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:14px;
+    flex-wrap:wrap;gap:8px;
+    position:relative;
+  }
+  .city-title h2{
+    margin:0;font-size:1.3rem;
+    transition:color .4s ease;
+  }
+  .city-scene.night .city-title h2{color:#EAF4EE;}
+  .city-title .progress-text{
+    font-size:1rem;font-weight:700;color:#2E7D53;
+    background:#FFFFFFCC;padding:6px 14px;border-radius:999px;
+    transition:background .4s ease,color .4s ease;
+  }
+  .city-scene.night .progress-text{background:#00000055;color:#EAF4EE;}
+  .night-toggle{
+    border:none;border-radius:999px;
+    padding:6px 14px;font-size:.85rem;font-weight:700;
+    cursor:pointer;background:#FFFFFFCC;color:#2E7D53;
+    transition:background .4s ease,color .4s ease;
+  }
+  .night-toggle:disabled{opacity:.4;cursor:not-allowed;}
+  .city-scene.night .night-toggle{background:#00000055;color:#EAF4EE;}
+  .city-ground{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-around;
+    gap:8px;
+    min-height:150px;
+    padding:10px 4px 0;
+    flex-wrap:wrap;
+  }
+  .city-slot{
+    width:100px;
+    text-align:center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .bldg-block{
+    width:66px;
+    border-radius:14px 14px 6px 6px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:2.1rem;
+    border:3px dashed #CBD9D2;
+    background:#E3EAE5;
+    transition: height .3s ease, background .3s ease, border-color .3s ease, transform .3s ease;
+  }
+  .city-slot.done .bldg-block{
+    border-style:solid;
+    box-shadow:0 6px 14px rgba(35,58,50,.14);
+    transform:translateY(-2px);
+  }
+  .city-scene.night .city-slot.done .bldg-block{
+    box-shadow:0 0 16px 3px rgba(255,232,150,.6);
+  }
+  .city-slot .bldg-label{
+    margin-top:8px;
+    font-size:.82rem;
+    font-weight:700;
+    color:var(--sub);
+    transition:color .4s ease;
+  }
+  .city-slot.done .bldg-label{color:var(--ink);}
+  .city-scene.night .city-slot.done .bldg-label{color:#EAF4EE;}
+  .city-river{
+    height:24px;
+    margin:12px -20px -16px;
+    background:linear-gradient(90deg,#B4A186,#9C8368);
+    border-radius:0 0 24px 24px;
+    display:flex;align-items:center;justify-content:center;
+    gap:18px;font-size:1.05rem;
+    transition:background .5s ease, filter .5s ease;
+  }
+  .city-river.clean{
+    background:linear-gradient(90deg,#38BDF8,#7DDCF7);
+  }
+  .city-scene.night .city-river{filter:brightness(.55) saturate(1.2);}
+  .city-trees{
+    display:flex;justify-content:center;gap:8px;
+    font-size:1.5rem;
+    min-height:1.6rem;
+    margin-top:6px;
+  }
+  .city-decor{
+    display:flex;justify-content:center;flex-wrap:wrap;gap:6px;
+    font-size:1.3rem;
+    margin-top:6px;
+    min-height:1.4rem;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+  }
+  @media (max-width:900px){
+    .grid{grid-template-columns:repeat(2,1fr);}
+  }
+  @media (max-width:600px){
+    .grid{grid-template-columns:1fr;}
+    header h1{font-size:2.1rem;}
+    .modal{padding:26px 22px 28px;}
+    .situation-box{font-size:1.15rem;padding:20px;}
+    .option-btn{font-size:1.05rem;padding:14px 10px;}
+    .check-item{font-size:1.05rem;padding:14px 16px;}
+    .sentence-result{font-size:1.2rem;padding:20px;}
+    .city-slot{width:76px;}
+    .city-slot .bldg{font-size:2.3rem;}
+  }
+  .card{
+    background:var(--card-bg);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+    padding:26px 22px;
+    cursor:pointer;
+    border:3px solid transparent;
+    transition:transform .15s ease, border-color .15s ease;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    text-align:center;
+  }
+  .card:hover{transform:translateY(-4px);}
+  .card:active{transform:translateY(-1px) scale(.99);}
+  .card .icon{
+    font-size:2.6rem;
+    width:72px;height:72px;
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto;
+    border-radius:50%;
+  }
+  .card h2{
+    font-size:1.45rem;
+    margin:4px 0 0;
+  }
+  .card .desc{
+    font-size:1.05rem;
+    color:var(--sub);
+    line-height:1.45;
+    min-height:2.9em;
+  }
+  .stars{
+    font-size:1.35rem;
+    letter-spacing:2px;
+  }
+  .stars .on{color:#FFB800;}
+  .stars .off{color:#E5DDD3;}
+  .start-hint{
+    margin-top:auto;
+    font-size:1rem;
+    font-weight:700;
+    padding:8px 0 2px;
+  }
+
+  /* Modal */
+  .overlay{
+    position:fixed;inset:0;
+    background:rgba(35,58,50,.55);
+    display:flex;align-items:center;justify-content:center;
+    padding:20px;
+    z-index:100;
+    opacity:0;pointer-events:none;
+    transition:opacity .2s ease;
+  }
+  .overlay.open{opacity:1;pointer-events:auto;}
+  .modal{
+    background:var(--card-bg);
+    border-radius:26px;
+    width:100%;max-width:720px;
+    max-height:92vh;
+    overflow-y:auto;
+    padding:38px 40px 40px;
+    position:relative;
+    box-shadow:0 20px 50px rgba(0,0,0,.25);
+  }
+  .modal-close{
+    position:absolute;
+    top:20px;right:22px;
+    background:none;border:none;
+    font-size:1.7rem;
+    cursor:pointer;
+    color:var(--sub);
+    line-height:1;
+  }
+  .modal-head{
+    display:flex;align-items:center;gap:12px;
+    margin-bottom:8px;
+  }
+  .modal-head .icon{font-size:2.1rem;}
+  .modal-head h2{margin:0;font-size:1.6rem;}
+  .progress{
+    display:flex;gap:6px;margin:20px 0 26px;
+  }
+  .progress span{
+    flex:1;height:8px;border-radius:5px;
+    background:#E4EFE8;
+  }
+  .progress span.done{background:var(--accent,#0EA5E9);}
+  .step-label{
+    font-size:1rem;
+    font-weight:700;
+    color:var(--accent,#0EA5E9);
+    margin-bottom:8px;
+  }
+  .situation-box{
+    background:var(--accent-light,#E0F5FF);
+    border-radius:16px;
+    padding:26px;
+    font-size:1.35rem;
+    line-height:1.6;
+    margin-bottom:6px;
+  }
+  .option-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:12px;
+    margin-top:16px;
+  }
+  .option-btn{
+    border:2px solid #E4EFE8;
+    background:#FFF;
+    border-radius:14px;
+    padding:18px 14px;
+    font-size:1.2rem;
+    cursor:pointer;
+    text-align:center;
+    transition:.15s;
+  }
+  .option-btn:hover{border-color:var(--accent,#0EA5E9);}
+  .option-btn.selected{
+    border-color:var(--accent,#0EA5E9);
+    background:var(--accent-light,#E0F5FF);
+    font-weight:700;
+  }
+  .check-list{
+    display:flex;flex-direction:column;gap:12px;
+    margin-top:16px;
+  }
+  .check-item{
+    display:flex;align-items:center;gap:14px;
+    border:2px solid #E4EFE8;
+    border-radius:14px;
+    padding:18px 20px;
+    cursor:pointer;
+    font-size:1.2rem;
+    transition:.15s;
+  }
+  .check-item.checked{
+    border-color:var(--accent,#0EA5E9);
+    background:var(--accent-light,#E0F5FF);
+  }
+  .check-box{
+    width:26px;height:26px;border-radius:8px;
+    border:2px solid #CBD9D2;
+    flex:none;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1rem;
+    background:#fff;
+  }
+  .check-item.checked .check-box{
+    background:var(--accent,#0EA5E9);
+    border-color:var(--accent,#0EA5E9);
+    color:#fff;
+  }
+  .sentence-result{
+    background:var(--accent-light,#E0F5FF);
+    border-radius:16px;
+    padding:26px;
+    font-size:1.45rem;
+    font-weight:700;
+    text-align:center;
+    margin-top:18px;
+    line-height:1.55;
+  }
+  .nav-row{
+    display:flex;gap:12px;margin-top:30px;
+  }
+  .btn{
+    flex:1;
+    border:none;
+    border-radius:14px;
+    padding:16px 10px;
+    font-size:1.2rem;
+    font-weight:700;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .btn-primary{
+    background:var(--accent,#0EA5E9);
+    color:#fff;
+  }
+  .btn-primary:disabled{
+    background:#E5DDD3;
+    cursor:not-allowed;
+  }
+  .btn-ghost{
+    background:#EEF5F0;
+    color:var(--ink);
+    flex:none;
+    width:120px;
+  }
+  .complete-wrap{
+    text-align:center;
+    padding:10px 0 0;
+  }
+  .complete-wrap .big-emoji{
+    font-size:3.6rem;
+    margin-bottom:12px;
+  }
+  .complete-wrap h3{
+    margin:0 0 6px;
+    font-size:1.6rem;
+  }
+  .complete-wrap .reward-line{
+    font-size:1.15rem;
+    color:var(--accent,#0EA5E9);
+    font-weight:700;
+    margin:0 0 12px;
+  }
+  .complete-wrap p{
+    color:var(--sub);
+    font-size:1.15rem;
+    margin:0 0 20px;
+  }
+  .rate-stars{
+    display:flex;
+    flex-direction:row-reverse;
+    justify-content:center;
+    gap:8px;
+    font-size:2.6rem;
+    cursor:pointer;
+    margin-bottom:26px;
+  }
+  .rate-stars span{
+    color:#E5DDD3;
+    transition:color .1s, transform .1s;
+  }
+  .rate-stars span.on{color:#FFB800;}
+  .rate-stars span:hover,
+  .rate-stars span:hover ~ span{
+    color:#FFB800;
+    transform:scale(1.12);
+  }
+
+  .student-badge{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    margin-top:14px;
+    font-size:1rem;
+    color:var(--sub);
+  }
+  .student-badge b{color:var(--ink);}
+  .student-badge button{
+    border:none;background:none;color:var(--sub);
+    cursor:pointer;font-size:.95rem;text-decoration:underline;
+  }
+  .name-gate input{
+    width:100%;
+    font-size:1.2rem;
+    padding:16px 18px;
+    border-radius:14px;
+    border:2px solid #E4EFE8;
+    margin:18px 0 22px;
+  }
+  .name-gate input:focus{outline:none;border-color:#0EA5E9;}
+
+  .decorate-section{
+    background:var(--card-bg);
+    border-radius:28px;
+    box-shadow:var(--shadow);
+    padding:26px 24px 24px;
+    margin-bottom:36px;
+  }
+  .decorate-section h2{margin:0 0 4px;font-size:1.3rem;}
+  .decorate-section .decorate-desc{margin:0 0 16px;color:var(--sub);font-size:.95rem;}
+  .decorate-palette{
+    display:flex;flex-wrap:wrap;gap:8px;
+    margin-bottom:16px;
+    padding-bottom:16px;
+    border-bottom:2px dashed #E4EFE8;
+  }
+  .palette-item{
+    width:50px;height:50px;border-radius:12px;
+    border:2px solid #E4EFE8;background:#F7FBF8;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.5rem;cursor:pointer;transition:.15s;
+  }
+  .palette-item:hover{border-color:#16A34A;}
+  .palette-item.selected{
+    border-color:#16A34A;background:#DCFCE7;
+    transform:scale(1.08);
+  }
+  .palette-item.locked{
+    opacity:.32;filter:grayscale(1);cursor:not-allowed;
+  }
+  .palette-item.locked:hover{border-color:#E4EFE8;}
+  .decorate-map{
+    display:grid;
+    grid-template-columns:repeat(10, 1fr);
+    gap:3px;
+    background:#BFE3C8;
+    border-radius:16px;
+    padding:6px;
+  }
+  .map-cell{
+    background:#DFF3E4;
+    border-radius:5px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.35rem;
+    cursor:pointer;
+    aspect-ratio:1;
+  }
+  .map-cell:hover{background:#CDEBD4;}
+  .decorate-actions{display:flex;justify-content:flex-end;margin-top:14px;}
+  .btn-clear{
+    border:none;border-radius:12px;
+    padding:10px 16px;background:#FBEAE5;color:#C0392B;
+    font-weight:700;cursor:pointer;font-size:.9rem;
+  }
+  @media (max-width:600px){
+    .map-cell{font-size:1rem;}
+    .palette-item{width:42px;height:42px;font-size:1.2rem;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🌍 환경을 지키는 미래도시</h1>
+    <p>여섯 가지 미션을 풀고 나만의 미래도시를 완성해요</p>
+    <div class="student-badge" id="studentBadge"></div>
+  </header>
+
+  <div class="city-scene" id="cityScene">
+    <div class="city-sky-deco">
+      <div class="cloud-deco c1">☁️</div>
+      <div class="cloud-deco c2">☁️</div>
+      <div class="cloud-deco c3">☁️</div>
+      <div class="star-deco s1">✦</div>
+      <div class="star-deco s2">✦</div>
+      <div class="star-deco s3">✦</div>
+      <div class="sun-deco">☀️</div>
+      <div class="moon-deco">🌙</div>
+    </div>
+    <div class="city-title">
+      <h2 id="cityHeading">🏙️ 나의 미래도시</h2>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="night-toggle" id="nightToggle" onclick="toggleNight()" disabled>🌙 밤 도시 보기</button>
+        <div class="progress-text" id="cityProgress">0 / 6 완성</div>
+      </div>
+    </div>
+    <div class="city-ground" id="cityGround"></div>
+    <div class="city-river" id="cityRiver"></div>
+    <div class="city-trees" id="cityTrees"></div>
+    <div class="city-decor" id="cityDecor"></div>
+  </div>
+
+  <div class="decorate-section">
+    <h2>🎨 도시 꾸미기</h2>
+    <p class="decorate-desc">미션을 완성하면 열리는 건물과, 언제든 쓸 수 있는 소품으로 넓은 지도를 자유롭게 꾸며보세요. 소품을 고른 뒤 빈칸을 누르면 놓이고, 놓인 것을 누르면 치워져요.</p>
+    <div class="decorate-palette" id="decoratePalette"></div>
+    <div class="decorate-map" id="decorateMap"></div>
+    <div class="decorate-actions">
+      <button class="btn-clear" onclick="clearMap()">🧹 지도 비우기</button>
+    </div>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+const MISSIONS = [
+  {
+    id:'air', icon:'🏭', title:'맑은 하늘 만들기', desc:'공기를 깨끗하게 지켜요',
+    color:'#0EA5E9', colorLight:'#E0F5FF',
+    reward:{ icon:'☀️', label:'태양광 발전소' },
+    steps:['문제 알아보기','원인 살펴보기','해결 방법 실천하기','다짐 문장 만들기'],
+    scenarios:[
+      { situation:'공장 굴뚝과 자동차에서 나오는 뿌연 연기로 하늘이 온통 뿌옇게 흐려졌어요.',
+        causes:['매연을 내뿜는 자동차 🚗','공장의 뿌연 연기 🏭','쓰레기를 태우는 연기 🔥'],
+        solutions:['가까운 거리는 걸어가거나 자전거를 타요','버스나 지하철 같은 대중교통을 이용해요','나무를 심어 공기를 맑게 해요'],
+        pledges:['가까운 곳은 걸어갈게요','대중교통을 이용할게요','나무 심기에 참여할게요'] },
+      { situation:'학교 앞 도로에 차가 많아서 아침마다 매캐한 냄새가 나요.',
+        causes:['차가 많이 다니는 것 🚗','신호 대기 중에도 시동을 안 끄는 것 🚦','오래된 자동차의 매연 🚙'],
+        solutions:['등하교할 때 걷거나 자전거를 타요','신호 대기 중에는 시동을 꺼요','친환경 차를 이용해요'],
+        pledges:['걷거나 자전거로 등교할게요','신호 대기 중 시동을 끄자고 말할게요','친환경 차를 응원할게요'] },
+      { situation:'미세먼지 농도가 너무 높아서 밖에서 뛰어놀기 힘든 날이 많아졌어요.',
+        causes:['공장 매연과 자동차 배기가스 🏭','건설 현장의 먼지 🏗️','바람을 타고 온 황사 🌪️'],
+        solutions:['미세먼지가 심한 날은 마스크를 써요','환기는 미세먼지가 적은 시간에 해요','대중교통을 이용해 매연을 줄여요'],
+        pledges:['미세먼지 심한 날 마스크를 쓸게요','환기 시간을 확인할게요','대중교통을 이용할게요'] }
+    ]
+  },
+  {
+    id:'water', icon:'🌊', title:'맑은 물 지키기', desc:'강과 바다를 깨끗하게 해요',
+    color:'#2563EB', colorLight:'#DBEAFE',
+    reward:{ icon:'🐟', label:'맑은 강 생태공원' },
+    steps:['문제 알아보기','원인 살펴보기','해결 방법 실천하기','다짐 문장 만들기'],
+    scenarios:[
+      { situation:'공장 폐수와 쓰레기 때문에 강물이 더러워지고 물고기들이 살기 힘들어졌어요.',
+        causes:['공장에서 흘려보낸 더러운 물 🏭','강에 버려진 쓰레기 🗑️','세제를 너무 많이 쓰는 것 🧴'],
+        solutions:['설거지할 때 세제를 조금만 써요','쓰레기를 강에 버리지 않아요','물을 아껴 써요'],
+        pledges:['세제를 적게 쓸게요','쓰레기를 강에 버리지 않을게요','물을 아껴 쓸게요'] },
+      { situation:'바다에 떠다니는 플라스틱 쓰레기 때문에 거북이와 물고기가 다치고 있어요.',
+        causes:['바다에 버려진 플라스틱 쓰레기 🥤','낚시할 때 버려진 그물 🎣','일회용품을 많이 쓰는 것 🥡'],
+        solutions:['일회용품 대신 다회용기를 써요','바다에 쓰레기를 버리지 않아요','플라스틱 사용을 줄여요'],
+        pledges:['다회용기를 사용할게요','쓰레기를 아무데나 버리지 않을게요','플라스틱을 줄일게요'] },
+      { situation:'동네 하천에서 냄새가 나고 물고기가 떠올라 있어요.',
+        causes:['생활 하수를 그냥 흘려보내는 것 🚿','기름을 하수구에 버리는 것 🛢️','쓰레기를 하천에 버리는 것 🗑️'],
+        solutions:['기름은 하수구에 버리지 않아요','샴푸나 세제 사용을 줄여요','하천 주변에 쓰레기를 버리지 않아요'],
+        pledges:['기름을 하수구에 버리지 않을게요','세제를 적게 쓸게요','하천을 깨끗하게 지킬게요'] }
+    ]
+  },
+  {
+    id:'waste', icon:'🗑️', title:'쓰레기 줄이기', desc:'분리배출과 재활용을 실천해요',
+    color:'#16A34A', colorLight:'#DCFCE7',
+    reward:{ icon:'♻️', label:'재활용 센터' },
+    steps:['문제 알아보기','원인 살펴보기','해결 방법 실천하기','다짐 문장 만들기'],
+    scenarios:[
+      { situation:'쓰레기가 너무 많이 쌓여서 쓰레기 매립지가 꽉 차고 있어요.',
+        causes:['분리배출을 하지 않는 것 🗑️','일회용품을 많이 쓰는 것 🥤','물건을 쉽게 버리는 것 📦'],
+        solutions:['플라스틱, 종이, 캔을 나눠서 버려요','일회용 컵 대신 텀블러를 써요','물건을 아껴 쓰고 다시 써요'],
+        pledges:['분리배출을 잘할게요','텀블러를 사용할게요','물건을 아껴 쓸게요'] },
+      { situation:'학교 급식실에서 음식물 쓰레기가 너무 많이 나와요.',
+        causes:['먹을 만큼만 받지 않는 것 🍚','골고루 먹지 않고 남기는 것 🥦','필요 이상으로 많이 담는 것 🍽️'],
+        solutions:['먹을 만큼만 배식받아요','음식을 골고루 먹어요','남기지 않도록 노력해요'],
+        pledges:['먹을 만큼만 받을게요','골고루 먹을게요','음식을 남기지 않을게요'] },
+      { situation:'택배 상자와 포장 쓰레기가 집집마다 넘쳐나고 있어요.',
+        causes:['과대 포장을 하는 것 📦','일회용 포장재를 많이 쓰는 것 🧴','물건을 자주 바꾸는 것 🛍️'],
+        solutions:['상자와 종이는 따로 모아 재활용해요','포장재를 다시 사용해요','필요한 물건만 사요'],
+        pledges:['상자를 재활용할게요','포장재를 다시 쓸게요','필요한 것만 살게요'] }
+    ]
+  },
+  {
+    id:'energy', icon:'💡', title:'에너지 아껴 쓰기', desc:'전기와 에너지를 절약해요',
+    color:'#EAB308', colorLight:'#FEF9C3',
+    reward:{ icon:'🔋', label:'스마트 충전소' },
+    steps:['문제 알아보기','원인 살펴보기','해결 방법 실천하기','다짐 문장 만들기'],
+    scenarios:[
+      { situation:'쓰지 않는 방에도 불이 켜져 있고, 에어컨이 하루 종일 돌아가고 있어요.',
+        causes:['안 쓰는 불을 안 끄는 것 💡','냉난방을 너무 세게 트는 것 ❄️','플러그를 안 뽑는 것 🔌'],
+        solutions:['안 쓰는 방의 불은 꺼요','적정 온도로 냉난방을 맞춰요','안 쓰는 플러그는 뽑아요'],
+        pledges:['불을 잘 끌게요','적정 온도를 지킬게요','플러그를 뽑을게요'] },
+      { situation:'여름철 냉방을 너무 세게 틀어서 교실이 냉장고처럼 추워요.',
+        causes:['냉방 온도를 너무 낮게 설정하는 것 ❄️','문을 열어둔 채 냉방을 트는 것 🚪','안 쓰는 교실에도 냉방을 켜두는 것 💡'],
+        solutions:['적정 냉방 온도(26도)를 지켜요','문을 닫고 냉방을 틀어요','안 쓰는 교실은 냉방을 꺼요'],
+        pledges:['적정 온도를 지킬게요','문을 닫고 사용할게요','안 쓰는 곳은 꺼둘게요'] },
+      { situation:'밤에도 학교 복도와 운동장 조명이 계속 켜져 있어요.',
+        causes:['필요 없는 조명을 켜두는 것 💡','센서등이 고장 난 것 🔦','절전을 신경 쓰지 않는 것 🔌'],
+        solutions:['안 쓰는 조명은 꺼요','에너지 절약형 전구를 사용해요','필요한 만큼만 밝기를 조절해요'],
+        pledges:['안 쓰는 불을 끌게요','절전 전구를 쓰자고 건의할게요','에너지를 아껴 쓸게요'] }
+    ]
+  },
+  {
+    id:'climate', icon:'🌡️', title:'지구 온도 지키기', desc:'기후 변화를 늦춰요',
+    color:'#F97316', colorLight:'#FFEDD5',
+    reward:{ icon:'🌳', label:'초록 숲 공원' },
+    steps:['문제 알아보기','원인 살펴보기','해결 방법 실천하기','다짐 문장 만들기'],
+    scenarios:[
+      { situation:'지구가 점점 뜨거워져서 빙하가 녹고 날씨가 이상해지고 있어요.',
+        causes:['화석 연료를 많이 쓰는 것 ⛽','나무를 많이 베는 것 🪓','에너지를 낭비하는 것 💡'],
+        solutions:['나무를 심고 숲을 지켜요','에너지를 아껴 써요','가까운 거리는 걷거나 자전거를 타요'],
+        pledges:['나무 심기에 동참할게요','에너지를 아껴 쓸게요','걷거나 자전거를 탈게요'] },
+      { situation:'겨울인데도 날씨가 너무 따뜻해서 눈이 오지 않는 날이 많아졌어요.',
+        causes:['온실가스가 늘어나는 것 🌫️','화석 연료 사용이 많은 것 ⛽','숲이 줄어드는 것 🌲'],
+        solutions:['에너지를 아껴 써요','대중교통이나 자전거를 이용해요','나무 심기 캠페인에 참여해요'],
+        pledges:['에너지를 아껴 쓸게요','대중교통을 이용할게요','나무 심기에 참여할게요'] },
+      { situation:'폭염과 폭우 같은 이상 기후가 자꾸 나타나서 사람들이 힘들어해요.',
+        causes:['지구 평균 기온이 오르는 것 🌡️','이산화탄소 배출이 많은 것 🏭','숲과 나무가 줄어드는 것 🪓'],
+        solutions:['일회용품 사용을 줄여요','가까운 거리는 걷거나 자전거를 타요','나무와 숲을 보호해요'],
+        pledges:['일회용품을 줄일게요','걷거나 자전거를 탈게요','숲을 보호할게요'] }
+    ]
+  },
+  {
+    id:'bio', icon:'🦋', title:'동식물 지키기', desc:'함께 사는 생명을 보호해요',
+    color:'#DB2777', colorLight:'#FCE7F3',
+    reward:{ icon:'🦋', label:'생태 보호구역' },
+    steps:['문제 알아보기','원인 살펴보기','해결 방법 실천하기','다짐 문장 만들기'],
+    scenarios:[
+      { situation:'숲이 사라지면서 동물과 곤충들이 살 곳을 잃어가고 있어요.',
+        causes:['숲을 개발로 없애는 것 🏗️','동물의 서식지를 파괴하는 것 🌲','환경을 오염시키는 것 🏭'],
+        solutions:['숲과 자연을 보호해요','동물을 함부로 잡지 않아요','환경을 오염시키지 않아요'],
+        pledges:['자연을 보호할게요','동물을 소중히 여길게요','환경을 지킬게요'] },
+      { situation:'꿀벌 수가 줄어들어서 꽃가루받이가 잘 안 되고 있어요.',
+        causes:['농약을 많이 사용하는 것 🧪','꽃과 나무가 줄어드는 것 🌸','서식지가 파괴되는 것 🏗️'],
+        solutions:['꽃과 나무를 많이 심어요','농약 사용을 줄이도록 알려요','곤충이 살 수 있는 환경을 지켜요'],
+        pledges:['꽃과 나무를 심을게요','친환경 농법을 응원할게요','곤충의 서식지를 지킬게요'] },
+      { situation:'바다거북과 물고기들이 플라스틱을 먹고 다치는 일이 늘고 있어요.',
+        causes:['바다에 버려지는 플라스틱 쓰레기 🥤','무분별한 어업 활동 🎣','해양 생태계 파괴 🌊'],
+        solutions:['플라스틱 사용을 줄여요','해변 쓰레기를 주워요','해양 생물 보호 캠페인에 참여해요'],
+        pledges:['플라스틱을 줄일게요','해변 정화 활동에 참여할게요','해양 생물을 보호할게요'] }
+    ]
+  }
+];
+
+const RATE_KEY = 'fec_ratings';
+const NAME_KEY = 'fec_name';
+function loadRatings(){
+  try{ return JSON.parse(localStorage.getItem(RATE_KEY)) || {}; }catch(e){ return {}; }
+}
+function saveRating(id, stars){
+  const r = loadRatings();
+  if(!r[id] || stars > r[id]) r[id] = stars;
+  try{ localStorage.setItem(RATE_KEY, JSON.stringify(r)); }catch(e){}
+}
+
+const DECOR_KEY = 'fec_decor';
+const DECOR_ICONS = ['🚗','🚲','🚌','🐦','🏮','🌼','🛴','🚶'];
+function loadDecorations(){
+  try{ return JSON.parse(localStorage.getItem(DECOR_KEY)) || []; }catch(e){ return []; }
+}
+function addDecoration(){
+  const list = loadDecorations();
+  list.push(DECOR_ICONS[Math.floor(Math.random()*DECOR_ICONS.length)]);
+  try{ localStorage.setItem(DECOR_KEY, JSON.stringify(list.slice(-24))); }catch(e){}
+}
+
+function getName(){
+  try{ return localStorage.getItem(NAME_KEY) || ''; }catch(e){ return ''; }
+}
+function setName(name){
+  try{ localStorage.setItem(NAME_KEY, name); }catch(e){}
+}
+
+let state = null;
+
+function renderStudentBadge(){
+  const badge = document.getElementById('studentBadge');
+  const name = getName();
+  badge.innerHTML = name
+    ? `👤 <b>${name}</b> 학생 <button onclick="openNameGate()">이름 바꾸기</button>`
+    : '';
+  document.getElementById('cityHeading').textContent = name ? `🏙️ ${name}의 미래도시` : '🏙️ 나의 미래도시';
+}
+
+function openNameGate(){
+  const hasName = !!getName();
+  document.getElementById('overlay').classList.add('open');
+  const modal = document.getElementById('modal');
+  modal.style.removeProperty('--accent');
+  modal.style.removeProperty('--accent-light');
+  modal.innerHTML = `
+    ${hasName ? `<button class="modal-close" onclick="closeModal()">✕</button>` : ''}
+    <div class="name-gate">
+      <div class="modal-head">
+        <div class="icon">👋</div>
+        <h2>이름을 알려주세요</h2>
+      </div>
+      <div class="step-label" style="color:#0EA5E9">완성한 미래도시에 내 이름이 붙어요</div>
+      <input id="nameInput" type="text" placeholder="예) 김민준" maxlength="10" value="${getName()}" />
+      <div class="nav-row">
+        <button class="btn btn-primary" onclick="confirmName()">시작하기</button>
+      </div>
+    </div>
+  `;
+  const input = document.getElementById('nameInput');
+  input.focus();
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') confirmName(); });
+}
+
+function confirmName(){
+  const val = document.getElementById('nameInput').value.trim().slice(0,10);
+  if(!val) return;
+  setName(val);
+  renderStudentBadge();
+  document.getElementById('overlay').classList.remove('open');
+}
+
+function starHTML(count){
+  let s='';
+  for(let i=1;i<=5;i++) s += `<span class="${i<=count?'on':'off'}">★</span>`;
+  return s;
+}
+
+const BUILDING_HEIGHTS = [92, 122, 78, 106, 132, 86];
+
+function renderCity(){
+  const ratings = loadRatings();
+  const done = MISSIONS.filter(m=>ratings[m.id]).length;
+  document.getElementById('cityProgress').textContent = `${done} / ${MISSIONS.length} 완성`;
+
+  document.getElementById('cityGround').innerHTML = MISSIONS.map((m,i)=>{
+    const isDone = !!ratings[m.id];
+    const h = BUILDING_HEIGHTS[i] || 100;
+    const bg = isDone ? m.colorLight : '#E3EAE5';
+    const border = isDone ? m.color : '#CBD9D2';
+    return `<div class="city-slot ${isDone?'done':''}">
+      <div class="bldg-block" style="height:${h}px;background:${bg};border-color:${border}">${isDone ? m.reward.icon : '❔'}</div>
+      <div class="bldg-label">${isDone ? m.reward.label : '???'}</div>
+    </div>`;
+  }).join('');
+
+  const waterDone = !!ratings['water'];
+  const river = document.getElementById('cityRiver');
+  river.classList.toggle('clean', waterDone);
+  river.textContent = waterDone ? '🐟  🐟  🐟' : '';
+
+  const treeCount = (ratings['air']?1:0) + (ratings['climate']?2:0) + (ratings['bio']?2:0);
+  document.getElementById('cityTrees').textContent = '🌳'.repeat(treeCount);
+
+  document.getElementById('cityDecor').textContent = loadDecorations().join(' ');
+
+  const allDone = done === MISSIONS.length;
+  const toggle = document.getElementById('nightToggle');
+  toggle.disabled = !allDone;
+  toggle.title = allDone ? '' : '6개 미션을 모두 완성하면 열려요';
+  if(!allDone){
+    document.getElementById('cityScene').classList.remove('night');
+    toggle.textContent = '🌙 밤 도시 보기';
+  }
+}
+
+function toggleNight(){
+  const scene = document.getElementById('cityScene');
+  const isNight = scene.classList.toggle('night');
+  document.getElementById('nightToggle').textContent = isNight ? '☀️ 낮 도시 보기' : '🌙 밤 도시 보기';
+}
+
+function renderGrid(){
+  const ratings = loadRatings();
+  const grid = document.getElementById('grid');
+  grid.innerHTML = MISSIONS.map(m => `
+    <div class="card" style="border-color:${ratings[m.id]?m.color:'transparent'}" onclick="openMission('${m.id}')">
+      <div class="icon" style="background:${m.colorLight}">${m.icon}</div>
+      <h2>${m.title}</h2>
+      <div class="desc">${m.desc}</div>
+      <div class="stars">${starHTML(ratings[m.id]||0)}</div>
+      <div class="start-hint" style="color:${m.color}">시작하기 ▶</div>
+    </div>
+  `).join('');
+}
+
+function renderAll(){
+  renderCity();
+  renderGrid();
+  renderDecorate();
+}
+
+const SCENERY_ITEMS = [
+  {id:'tree', icon:'🌳', label:'나무'},
+  {id:'road', icon:'🛣️', label:'길'},
+  {id:'pond', icon:'🌊', label:'연못'},
+  {id:'flower', icon:'🌼', label:'꽃'},
+  {id:'bench', icon:'🪑', label:'벤치'},
+  {id:'lamp', icon:'🏮', label:'가로등'},
+  {id:'car', icon:'🚗', label:'자동차'},
+  {id:'bird', icon:'🐦', label:'새'},
+  {id:'house', icon:'🏠', label:'집'},
+  {id:'person', icon:'🧍', label:'사람'}
+];
+const MAP_COLS = 10, MAP_ROWS = 6;
+const MAP_KEY = 'fec_map';
+let selectedPaletteIcon = null;
+
+function loadMap(){
+  try{
+    const arr = JSON.parse(localStorage.getItem(MAP_KEY));
+    if(Array.isArray(arr) && arr.length === MAP_COLS*MAP_ROWS) return arr;
+  }catch(e){}
+  return new Array(MAP_COLS*MAP_ROWS).fill(null);
+}
+function saveMap(arr){
+  try{ localStorage.setItem(MAP_KEY, JSON.stringify(arr)); }catch(e){}
+}
+
+function renderDecorate(){
+  const ratings = loadRatings();
+  const items = [
+    ...MISSIONS.map(m=>({ icon:m.reward.icon, label:m.reward.label, unlocked:!!ratings[m.id] })),
+    ...SCENERY_ITEMS.map(s=>({ icon:s.icon, label:s.label, unlocked:true }))
+  ];
+  document.getElementById('decoratePalette').innerHTML = items.map(it=>`
+    <div class="palette-item ${it.unlocked?'':'locked'} ${selectedPaletteIcon===it.icon?'selected':''}"
+      title="${it.unlocked ? it.label : '미션을 완성하면 열려요'}"
+      onclick="${it.unlocked ? `selectPaletteItem('${it.icon}')` : ''}">${it.icon}</div>
+  `).join('');
+
+  const map = loadMap();
+  document.getElementById('decorateMap').innerHTML = map.map((cell,i)=>
+    `<div class="map-cell" onclick="tapCell(${i})">${cell || ''}</div>`
+  ).join('');
+}
+
+function selectPaletteItem(icon){
+  selectedPaletteIcon = (selectedPaletteIcon === icon) ? null : icon;
+  renderDecorate();
+}
+
+function tapCell(i){
+  const map = loadMap();
+  if(map[i]){
+    map[i] = null;
+  } else if(selectedPaletteIcon){
+    map[i] = selectedPaletteIcon;
+  } else {
+    return;
+  }
+  saveMap(map);
+  renderDecorate();
+}
+
+function clearMap(){
+  if(!confirm('배치한 것을 모두 지울까요?')) return;
+  saveMap(new Array(MAP_COLS*MAP_ROWS).fill(null));
+  renderDecorate();
+}
+
+function openMission(id){
+  const mission = MISSIONS.find(m=>m.id===id);
+  const scenario = mission.scenarios[Math.floor(Math.random()*mission.scenarios.length)];
+  state = { mission, scenario, step:0, cause:null, checked:new Set(), pledge:null };
+  document.getElementById('overlay').classList.add('open');
+  renderModal();
+}
+
+function closeModal(){
+  document.getElementById('overlay').classList.remove('open');
+  renderAll();
+}
+
+function setVars(m){
+  const modal = document.getElementById('modal');
+  modal.style.setProperty('--accent', m.color);
+  modal.style.setProperty('--accent-light', m.colorLight);
+}
+
+function renderModal(){
+  const { mission, scenario, step } = state;
+  setVars(mission);
+  const modal = document.getElementById('modal');
+
+  if(step >= 4){
+    modal.innerHTML = `
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="complete-wrap">
+        <div class="big-emoji">🎉</div>
+        <h3>${mission.title} 완성!</h3>
+        <div class="reward-line">${mission.reward.icon} ${mission.reward.label}이(가) 미래도시에 생겼어요!</div>
+        <p>오늘도 지구를 지켰어요. 별점을 매겨볼까요?</p>
+        <div class="rate-stars" id="rateStars">
+          <span data-v="5" onclick="setStars(5)">★</span>
+          <span data-v="4" onclick="setStars(4)">★</span>
+          <span data-v="3" onclick="setStars(3)">★</span>
+          <span data-v="2" onclick="setStars(2)">★</span>
+          <span data-v="1" onclick="setStars(1)">★</span>
+        </div>
+        <div class="nav-row">
+          <button class="btn btn-primary" onclick="finishMission()">완료하고 돌아가기</button>
+        </div>
+      </div>
+    `;
+    pendingStars = 0;
+    return;
+  }
+
+  const progress = mission.steps.map((_,i)=>`<span class="${i<=step?'done':''}"></span>`).join('');
+  const stepLabel = mission.steps[step];
+
+  let body = '';
+  if(step===0){
+    body = `<div class="situation-box">${scenario.situation}</div>`;
+  } else if(step===1){
+    body = `<div class="situation-box">${scenario.situation}</div>
+      <div class="option-grid">
+        ${scenario.causes.map(c=>`<button class="option-btn ${state.cause===c?'selected':''}" onclick="pickCause('${c.replace(/'/g,"\\'")}')">${c}</button>`).join('')}
+      </div>`;
+  } else if(step===2){
+    body = `<div class="check-list">
+      ${scenario.solutions.map((s,i)=>`<div class="check-item ${state.checked.has(i)?'checked':''}" onclick="toggleSolution(${i})">
+        <div class="check-box">${state.checked.has(i)?'✓':''}</div>
+        <div>${s}</div>
+      </div>`).join('')}
+    </div>`;
+  } else if(step===3){
+    body = `<div class="option-grid" style="grid-template-columns:1fr;">
+      ${scenario.pledges.map(p=>`<button class="option-btn ${state.pledge===p?'selected':''}" onclick="pickPledge('${p.replace(/'/g,"\\'")}')">${p}</button>`).join('')}
+      </div>
+      ${state.pledge ? `<div class="sentence-result">"나는 ${state.pledge}"</div>` : ''}
+    `;
+  }
+
+  const nextEnabled =
+    (step===0) ||
+    (step===1 && state.cause) ||
+    (step===2 && state.checked.size===scenario.solutions.length) ||
+    (step===3 && state.pledge);
+
+  modal.innerHTML = `
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-head">
+      <div class="icon">${mission.icon}</div>
+      <h2>${mission.title}</h2>
+    </div>
+    <div class="progress">${progress}</div>
+    <div class="step-label">${step+1}단계 · ${stepLabel}</div>
+    ${body}
+    <div class="nav-row">
+      ${step>0 ? `<button class="btn btn-ghost" onclick="prevStep()">이전</button>` : ''}
+      <button class="btn btn-primary" ${nextEnabled?'':'disabled'} onclick="nextStep()">${step===3?'완료하기':'다음'}</button>
+    </div>
+  `;
+}
+
+function pickCause(c){ state.cause = c; renderModal(); }
+function toggleSolution(i){
+  if(state.checked.has(i)) state.checked.delete(i); else state.checked.add(i);
+  renderModal();
+}
+function pickPledge(p){ state.pledge = p; renderModal(); }
+function prevStep(){ state.step--; renderModal(); }
+function nextStep(){ state.step++; renderModal(); }
+
+let pendingStars = 0;
+function setStars(n){
+  pendingStars = n;
+  document.getElementById('rateStars').querySelectorAll('span').forEach(s=>{
+    s.classList.toggle('on', Number(s.dataset.v) <= n);
+  });
+}
+function finishMission(){
+  if(pendingStars===0){ closeModal(); return; }
+
+  const beforeDone = MISSIONS.filter(m=>loadRatings()[m.id]).length;
+  const alreadyDone = !!loadRatings()[state.mission.id];
+  saveRating(state.mission.id, pendingStars);
+
+  if(alreadyDone){
+    addDecoration();
+  }
+
+  const afterDone = MISSIONS.filter(m=>loadRatings()[m.id]).length;
+  if(!alreadyDone && beforeDone < MISSIONS.length && afterDone === MISSIONS.length){
+    showCityCompleteCelebration();
+    return;
+  }
+  closeModal();
+}
+
+function showCityCompleteCelebration(){
+  const modal = document.getElementById('modal');
+  modal.style.removeProperty('--accent');
+  modal.style.removeProperty('--accent-light');
+  modal.innerHTML = `
+    <div class="complete-wrap">
+      <div class="big-emoji">🏙️✨</div>
+      <h3>미래도시 완성!</h3>
+      <div class="reward-line">여섯 가지 미션을 모두 끝냈어요!</div>
+      <p>이제 "🌙 밤 도시 보기" 버튼을 눌러서 반짝이는 우리 도시를 구경해 보세요. 미션을 다시 풀면 도시를 꾸밀 장식도 더 얻을 수 있어요.</p>
+      <div class="nav-row">
+        <button class="btn btn-primary" onclick="closeModal()">도시로 돌아가기</button>
+      </div>
+    </div>
+  `;
+}
+
+renderAll();
+renderStudentBadge();
+if(!getName()) openNameGate();
+</script>
+</body>
+</html>
